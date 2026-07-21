@@ -1,0 +1,16 @@
+{
+  "name": "pelmeshi",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "prompt & exchange language model efficient session history index",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "convert": "node src/convert.ts"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "^0.80.10",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.6.0"
+  }
+}
