@@ -1,6 +1,5 @@
 node_modules/
 *.tsbuildinfo
 store/
-.llm/
 format.json
 todo.md

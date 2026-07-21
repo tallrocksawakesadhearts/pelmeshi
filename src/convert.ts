@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { exportSession, fail, type Options } from "../.pi/extensions/pelmeshi.ts";
+import { exportSession, fail, type Options } from "./session.ts";
 
 function parseArgs(argv: string[]): Options {
     const args = argv.slice(2);
