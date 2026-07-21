@@ -24,11 +24,11 @@ export interface Stats {
 export type TranscriptEntry =
     | { role: "user"; text: string }
     | { role: "assistant"; text: string }
-    | { role: "tool"; name: string; path?: string; diff?: string; content?: string }
+    | { role: "tool"; name: string; path?: string; diff?: string[]; content?: string }
     | { role: "summary"; text: string };
 
 export interface SessionJson {
-    version: 2;
+    version: 3;
     tool: ToolMeta;
     model: ModelMeta | null;
     price_usd: number;
@@ -195,16 +195,18 @@ function asArray(content: string | ContentPart[] | undefined): ContentPart[] {
     return typeof content === "string" ? [{ type: "text", text: content }] : content;
 }
 
-function renderEditDiff(path: string, args: Record<string, unknown>): string {
+function renderEditDiff(path: string, args: Record<string, unknown>): string[] {
     const edits = Array.isArray(args.edits) ? (args.edits as Array<Record<string, unknown>>) : [];
-    const blocks = edits.map((edit, i) => {
+    const lines: string[] = [`--- ${path}`, `+++ ${path}`];
+    for (let i = 0; i < edits.length; i++) {
+        const edit = edits[i];
         const oldText = String(edit.oldText ?? "");
         const newText = String(edit.newText ?? "");
-        const oldLines = oldText.split("\n").map((l) => `-${l}`).join("\n");
-        const newLines = newText.split("\n").map((l) => `+${l}`).join("\n");
-        return `@@ edit ${i + 1} @@\n${oldLines}\n${newLines}`;
-    });
-    return `--- ${path}\n+++ ${path}\n${blocks.join("\n")}`;
+        lines.push(`@@ edit ${i + 1} @@`);
+        for (const l of oldText.split("\n")) lines.push(`-${l}`);
+        for (const l of newText.split("\n")) lines.push(`+${l}`);
+    }
+    return lines;
 }
 
 function toolEntry(name: string, args: Record<string, unknown>): TranscriptEntry {
@@ -342,7 +344,7 @@ export async function build(input: string, comment: string, redactUser: string):
     const price_usd = model ? await fetchPrice(model.name, stats) : 0;
 
     return {
-        version: 2,
+        version: 3,
         tool: { name: "pi", version: piVersion(), plugins: resolvePlugins(path) },
         model,
         price_usd,
