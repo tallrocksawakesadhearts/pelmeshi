@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "tool": {
+    "name": "pi",
+    "version": "0.80.10",
+    "plugins": [
+      "caveman"
+    ]
+  },
+  "model": {
+    "name": "z-ai/glm-5.2",
+    "runtime": "openrouter"
+  },
+  "price": "$0.0009",
+  "comment": "demo",
+  "description": "",
+  "stats": {
+    "turns": 5,
+    "tokens_in": 621,
+    "tokens_out": 152,
+    "cache_read": 9216
+  },
+  "transcript": [
+    {
+      "role": "user",
+      "text": "hii"
+    },
+    {
+      "role": "assistant",
+      "text": "Hii! What need?"
+    },
+    {
+      "role": "user",
+      "text": "read package json"
+    },
+    {
+      "role": "tool",
+      "name": "read"
+    },
+    {
+      "role": "assistant",
+      "text": "Read. Project \"pelmeshi\" — prompt & exchange LLM session history index. Scripts: `typecheck`, `convert` (runs `src/convert.ts`). Deps: pi-coding-agent, typescript, @types/node."
+    },
+    {
+      "role": "user",
+      "text": "funny word innit"
+    },
+    {
+      "role": "assistant",
+      "text": "Yeah. \"Pelmeshi\" = Russian diminutive for pelmeni (dumplings). Tasty name for LLM session tool. 🥟"
+    },
+    {
+      "role": "user",
+      "text": "cool"
+    },
+    {
+      "role": "assistant",
+      "text": "👍 Need anything, say."
+    }
+  ]
+}
