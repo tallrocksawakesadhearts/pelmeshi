@@ -28,10 +28,10 @@ export type TranscriptEntry =
     | { role: "summary"; text: string };
 
 export interface SessionJson {
-    version: 1;
+    version: 2;
     tool: ToolMeta;
     model: ModelMeta | null;
-    price: string;
+    price_usd: number;
     comment: string;
     description: string;
     stats: Stats;
@@ -300,26 +300,23 @@ interface OpenRouterModel {
     };
 }
 
-async function fetchPrice(modelId: string, stats: StatsAcc): Promise<string> {
+async function fetchPrice(modelId: string, stats: StatsAcc): Promise<number> {
     try {
         const res = await fetch("https://openrouter.ai/api/v1/models", {
             signal: AbortSignal.timeout(10_000),
         });
-        if (!res.ok) return "N/A";
+        if (!res.ok) return 0;
         const data = (await res.json()) as { data?: OpenRouterModel[] };
         const models = data.data ?? [];
         const m = models.find((x) => x.id === modelId);
-        if (!m?.pricing) return "N/A";
+        if (!m?.pricing) return 0;
 
         const pIn = parseFloat(m.pricing.prompt ?? "0");
         const pOut = parseFloat(m.pricing.completion ?? "0");
         const total = pIn * stats.tokensIn + pOut * stats.tokensOut;
-        if (total === 0) return "FREE";
-
-        const s = total.toFixed(4);
-        return `$${s.replace(/0+$/, "").replace(/\.$/, "")}`;
+        return Math.round(total * 10000) / 10000;
     } catch {
-        return "N/A";
+        return 0;
     }
 }
 
@@ -342,13 +339,13 @@ export async function build(input: string, comment: string, redactUser: string):
     const redacted = redactDeep(transcript, redact);
 
     const model = resolveModel(path);
-    const price = model ? await fetchPrice(model.name, stats) : "N/A";
+    const price_usd = model ? await fetchPrice(model.name, stats) : 0;
 
     return {
-        version: 1,
+        version: 2,
         tool: { name: "pi", version: piVersion(), plugins: resolvePlugins(path) },
         model,
-        price,
+        price_usd,
         comment: redact(comment),
         description: "",
         stats: { turns: stats.turns, tokens_in: stats.tokensIn, tokens_out: stats.tokensOut, cache_read: stats.cacheRead },

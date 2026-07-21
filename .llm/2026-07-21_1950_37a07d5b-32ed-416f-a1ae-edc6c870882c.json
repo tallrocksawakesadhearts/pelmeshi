@@ -1,0 +1,47 @@
+{
+  "version": 2,
+  "tool": {
+    "name": "pi",
+    "version": "0.80.10",
+    "plugins": [
+      "caveman"
+    ]
+  },
+  "model": {
+    "name": "z-ai/glm-5.2",
+    "runtime": "openrouter"
+  },
+  "price_usd": 0.007,
+  "comment": "",
+  "description": "",
+  "stats": {
+    "turns": 4,
+    "tokens_in": 4434,
+    "tokens_out": 1357,
+    "cache_read": 13440
+  },
+  "transcript": [
+    {
+      "role": "user",
+      "text": "in @src/session.ts change price to price_usd and store it as float. after that update version to 2"
+    },
+    {
+      "role": "tool",
+      "name": "read"
+    },
+    {
+      "role": "tool",
+      "name": "bash"
+    },
+    {
+      "role": "tool",
+      "name": "edit",
+      "path": "src/session.ts",
+      "diff": "--- src/session.ts\n+++ src/session.ts\n@@ edit 1 @@\n-export interface SessionJson {\n-    version: 1;\n-    tool: ToolMeta;\n-    model: ModelMeta | null;\n-    price: string;\n-    comment: string;\n+export interface SessionJson {\n+    version: 2;\n+    tool: ToolMeta;\n+    model: ModelMeta | null;\n+    price_usd: number;\n+    comment: string;\n@@ edit 2 @@\n-async function fetchPrice(modelId: string, stats: StatsAcc): Promise<string> {\n-    try {\n-        const res = await fetch(\"https://openrouter.ai/api/v1/models\", {\n-            signal: AbortSignal.timeout(10_000),\n-        });\n-        if (!res.ok) return \"N/A\";\n-        const data = (await res.json()) as { data?: OpenRouterModel[] };\n-        const models = data.data ?? [];\n-        const m = models.find((x) => x.id === modelId);\n-        if (!m?.pricing) return \"N/A\";\n-\n-        const pIn = parseFloat(m.pricing.prompt ?? \"0\");\n-        const pOut = parseFloat(m.pricing.completion ?? \"0\");\n-        const total = pIn * stats.tokensIn + pOut * stats.tokensOut;\n-        if (total === 0) return \"FREE\";\n-\n-        const s = total.toFixed(4);\n-        return `$${s.replace(/0+$/, \"\").replace(/\\.$/, \"\")}`;\n-    } catch {\n-        return \"N/A\";\n-    }\n-}\n+async function fetchPrice(modelId: string, stats: StatsAcc): Promise<number> {\n+    try {\n+        const res = await fetch(\"https://openrouter.ai/api/v1/models\", {\n+            signal: AbortSignal.timeout(10_000),\n+        });\n+        if (!res.ok) return 0;\n+        const data = (await res.json()) as { data?: OpenRouterModel[] };\n+        const models = data.data ?? [];\n+        const m = models.find((x) => x.id === modelId);\n+        if (!m?.pricing) return 0;\n+\n+        const pIn = parseFloat(m.pricing.prompt ?? \"0\");\n+        const pOut = parseFloat(m.pricing.completion ?? \"0\");\n+        const total = pIn * stats.tokensIn + pOut * stats.tokensOut;\n+        return Math.round(total * 10000) / 10000;\n+    } catch {\n+        return 0;\n+    }\n+}\n@@ edit 3 @@\n-    const model = resolveModel(path);\n-    const price = model ? await fetchPrice(model.name, stats) : \"N/A\";\n-\n-    return {\n-        version: 1,\n-        tool: { name: \"pi\", version: piVersion(), plugins: resolvePlugins(path) },\n-        model,\n-        price,\n+    const model = resolveModel(path);\n+    const price_usd = model ? await fetchPrice(model.name, stats) : 0;\n+\n+    return {\n+        version: 2,\n+        tool: { name: \"pi\", version: piVersion(), plugins: resolvePlugins(path) },\n+        model,\n+        price_usd,"
+    },
+    {
+      "role": "assistant",
+      "text": "Done. Changes `src/session.ts`:\n\n- `SessionJson.price: string` → `price_usd: number`, `version: 1` → `version: 2`\n- `fetchPrice` returns `number` (raw USD float, rounded to 4 decimals). Fetch fail / not found / free → `0`\n- `build()` returns `version: 2`, uses `price_usd`\n\nNote: error/no-model cases now collapse to `0`, losing the old `\"N/A\"`/`\"FREE\"` distinction. Want sentinel (e.g. `null` or `-1`) for unfetchable instead?"
+    }
+  ]
+}

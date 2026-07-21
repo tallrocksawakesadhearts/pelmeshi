@@ -1,7 +1,11 @@
-import { existsSync } from "node:fs";
+import { existsSync, realpathSync } from "node:fs";
 import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { exportSession } from "../../src/session.ts";
+
+const __filename = realpathSync(fileURLToPath(import.meta.url));
+const sessionModule: any = await import(new URL("../../src/session.ts", `file://${__filename}`).href);
+const exportSession = sessionModule.exportSession as typeof import("../../src/session.ts")["exportSession"];
 
 export default function pelmeshi(pi: ExtensionAPI) {
     pi.registerCommand("pelmeshi", {
