@@ -1,12 +1,27 @@
 {
   "name": "pelmeshi",
   "version": "1.0.0",
-  "private": true,
   "type": "module",
   "description": "prompt & exchange language model efficient session history index",
+  "keywords": ["pi-package"],
+  "bin": {
+    "pelmeshi": "src/convert.ts"
+  },
+  "exports": {
+    ".": "./src/session.ts"
+  },
+  "pi": {
+    "extensions": ["./.pi/extensions"]
+  },
+  "engines": {
+    "node": ">=22.6"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "convert": "node src/convert.ts"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
   },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "^0.80.10",
