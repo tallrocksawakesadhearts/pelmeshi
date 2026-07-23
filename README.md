@@ -7,7 +7,7 @@ Personal tool I built to truncate and log and pi agent sessions into `.llm` for 
 ## Installation
 
 ```bash
-pi install git:github.com/tallrocksawakesadhearts/pelmeshi
+pi install git:github.com/caryph/pelmeshi
 pi       # open pi agent
 /reload  # reload extensions
 ```
@@ -23,7 +23,7 @@ Then you can access the command:
 Alternatively, install as a CLI tool:
 
 ```bash
-npm i -g github:tallrocksawakesadhearts/pelmeshi
+npm i -g github:caryph/pelmeshi
 pelmeshi <path/to/session.jsonl> [-o <output_dir>] [--comment <text>] [--redact-user <name>]
 ```
 
